@@ -1,0 +1,352 @@
+---
+title: "Final Project"
+author: "Cynthia Petrossian"
+date: "5/9/2022"
+output: 
+  prettydoc::html_pretty:
+    toc: TRUE
+    theme: cayman
+    
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.path = "../Outputs/")
+```
+
+# Load Libraries
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+library(ggpubr)
+library(gganimate)
+library(gifski)
+library(prettydoc)
+library(magick)
+```
+
+# Introduction
+The integrity of organs and bodily tissues relies on adult stem cells (ASCs). ASCs divide to replace any cells lost to damage, disease, or regular turnover. There are many factors that control the differentiation and division of ASCs, notably master regulators (MRs) and their downstream targets.  
+
+```{r}
+image_read(here("Final_Project", "Images", "iscs.jpg"))  #Read in ISC image
+```
+
+While the effects of manipulating MRs on ASCs have been well characterized, and many of their potential downstream targets identified, validation of these targets and a mechanistic explanation of how they function within ASCs is still largely lacking.
+
+To explore this, we use the model system *Drosophila melanogaster*, the fruit fly. We specifically study intestinal stem cells (ISCs) in the posterior midgut region of the fly. 
+```{r}
+image_read(here("Final_Project", "Images", "modelsystem.png"))  #Read in ISC image
+```
+
+We will focus on two well-known MRs of ISCs in *Drosophila*, Escargot (Esg) and STAT. While previous work in our lab has validated several targets regulated by Esg, STAT, or both, the role of these targets themselves in ISC regulation has not been investigated.
+
+We will attempt to elucidate the roles of these targets by manipulating their genetic expression and observing the effects of this manipulation on ISC morphology. 
+
+For this project, we will focus on the downstream genetic target Indy. We genetically manipulated the expression of Indy by overexpressing it in *Drosophila* ISCs and visualized the intestinal cells through immunofluorescence microscopy. 
+
+We used Cell Profiler, a "free, open-source software designed to ... quantitatively measure phenotypes from thousands of images automatically" to generate numerical data of the phenotypes observed. This data was used for the following plots. 
+
+```{r}
+image_read(here("Final_Project", "Images", "indyoe.png"))  #Read in ISC image
+```
+
+
+# Increase in Enteroendrocrine Counts
+```{r eeprog}
+cells <- read_csv(here("Final_Project", "Data", "ee_progenitor_counts.csv")) #read in data
+view(cells) #view data
+
+cells %>% 
+  ggplot(aes(x = group, #create ggplot, set x axis as experimental group
+             y = ratio, #set y axis as ratio
+             color = group))+ #set color as group
+  geom_boxplot()+ #geom boxplot
+  geom_point(position = position_jitterdodge())+ #add jittered points
+  labs(title = "EE Counts Relative to Progenitor Counts in Indy OE (20117)", #add title
+       y = "# of EE Cells / # of Progenitor Cells", #add y axis label
+       x = "Experimental Group")+ #add x axis label
+  guides(color = FALSE)+ #remove legend
+   geom_signif(comparisons = list(c("Ctl", "Indy OE")), #determine significance
+              map_signif_level=TRUE, #show significance on plot
+              color = "black")  #change bracket color to black
+```
+
+```{r}
+image_read(here("Final_Project", "Images", "indyoe.png"))  #Read in ISC image
+```
+
+# 20117 Data Wrangling
+```{r}
+indy1ctl <- read_csv(here("Final_Project", "Data", "20117",  "DAPIcells_Filtered_DAPI_nuclei_ctl.csv")) #read in data
+indy1exp <- read_csv(here("Final_Project", "Data", "20117",  "DAPIcells_Filtered_DAPI_nuclei_exp.csv")) #read in data
+
+indy1ctl <- indy1ctl %>% 
+  clean_names() #clean column names with janitor package
+indy1ctl #view indy1ctl
+
+indy1exp <- indy1exp %>% 
+  clean_names() #clean column names with janitor package
+indy1exp #view indy1exp
+
+indy1ctl <- mutate(.data = indy1ctl,
+                    metadatagroup = "Ctl",
+                    line = "20117") #add new column for metadatagroup to indy1ctl dataframe - have it say "Ctl"
+
+indy1exp <- mutate(.data = indy1exp,
+                    metadatagroup = "Indy OE",
+                    line = "20117") #add new column for metadatagroup to indy1exp  - have it say "Indy OE"
+
+
+combinedindy1 <- bind_rows(indy1ctl, indy1exp) #stack the two dataframes on top of each other
+combinedindy1 #view combined dataframes
+
+means_combinedindy1 <- combinedindy1 %>% #create new df
+  group_by(metadatagroup, metadata_gut, line) %>% #group by experimental group and gut number
+  summarise(first_distance_mean = mean(neighbors_first_closest_distance_expanded), #get means for first distance
+            second_distance_mean = mean(neighbors_second_closest_distance_expanded)) %>% #get means for second distance
+  mutate(microns_first = first_distance_mean/6.20, #add new column called "microns_first" - convert distances from pixels to microns by dividing by 6.2
+         microns_second = second_distance_mean/6.20) #add new column called "microns_second" - convert distances from pixels to microns by dividing by 6.2
+view(means_combinedindy1) #viewnew dataframe
+
+rfindy1 <- means_combinedindy1 %>% #create new dataframe
+  rowwise() #use rowwise to allow for computing of dataframe on row by row basis
+rfindy1 #view dataframe
+```
+
+# 21412 Data Wrangling
+```{r}
+indy2ctl <- read_csv(here("Final_Project", "Data", "21412", "DAPIcells_Filtered_DAPI_nuclei_ctl.csv")) #read in data
+indy2exp <- read_csv(here("Final_Project", "Data", "21412",  "DAPIcells_Filtered_DAPI_nuclei_exp.csv")) #read in data
+
+indy2ctl <- indy2ctl %>% 
+  clean_names() #clean names using janitor package
+indy2ctl #view df
+
+indy2exp <- indy2exp %>% 
+  clean_names() #clean names using janitor package
+indy2exp #view df
+
+indy2ctl <- mutate(.data = indy2ctl, 
+                    metadatagroup = "Ctl",
+                    line = "21412") #add new column to df called "metadatagrop" and set as "Ctl"
+
+indy2ctl
+indy2exp <- mutate(.data = indy2exp,
+                    metadatagroup = "Indy OE",
+                    line = "21412") #add new column to df called "metadatagrop" and set as "Indy OE"
+
+combinedindy2 <- bind_rows(indy2ctl, indy2exp) #stack dfs on top of each other
+view(combinedindy2) #view new df
+
+means_combinedindy2 <- combinedindy2 %>% #create new df
+  group_by(metadatagroup, metadata_gut, line) %>% #group by metaadatagroup and gut number
+  summarise(first_distance_mean = mean(neighbors_first_closest_distance_expanded), #get first distance means
+            second_distance_mean = mean(neighbors_second_closest_distance_expanded)) %>% #get second distance means
+  mutate(microns_first = first_distance_mean/6.20, #add new column called "microns_first" to convert pixels to microns by dividing by 6.2
+         microns_second = second_distance_mean/6.20) #add new column called "microns_second" to convert pixels to microns by dividing by 6.2
+view(means_combinedindy2) #view df
+
+rfindy2 <- means_combinedindy2 %>% #create new df
+  rowwise() #use rowwise to allow for computing dataframe on row by row basis
+rfindy2 #view df
+```
+
+# Data Wrangling of Both 20117 & 21412
+```{r}
+combinedindy <- bind_rows(means_combinedindy1, means_combinedindy2) #stack dfs on top of each other
+view(combinedindy) #view new df
+
+rfindy <- combinedindy %>% 
+  rowwise() #use rowwise to allow for computing dataframe on row by row basis
+rfindy #view df
+```
+
+# First Distance Means Plot (Animated)
+```{r firstdistancecombined}
+first <- combinedindy %>% #create ggplot from this data
+  ggplot(aes(x = metadatagroup, #set x axis as metadatagroup
+             y = microns_first, #set y axis as microns
+             color = metadatagroup))+ #set color as metadatagroup
+  geom_boxplot()+ #geom is boxplot
+  geom_point(position = position_jitterdodge())+
+  labs(x = "Experimental Group", #add x axis label
+       y = "Average of Means (micrometers)")+ #add y axis label
+  guides(color = FALSE)+ #remove legend
+transition_states(line, #the thing you are animating by
+                    transition_length = 2, #relative length of transition (length between transitions)
+                    state_length = 1)+ #The length between end and beginning of gif
+  ease_aes("sine-in-out")+
+  ggtitle("First Distance Means of Line {closest_state}")
+
+  animate(first, height=400, width=600, renderer=gifski_renderer())
+  anim_save("combinedmeans.gif", first)
+```
+
+# 20117 First Distance Means Plot
+```{r 20117firstdistance}
+means_combinedindy1 %>% #create ggplot from this data
+  ggplot(aes(x = metadatagroup, #set x axis as metadatagroup
+             y = microns_first, #set y axis as microns
+             color = metadatagroup))+ #set color to metedatagroup
+  geom_boxplot()+ #geom is boxplot
+  geom_point(position = position_jitterdodge())+
+  labs(title = "First Distance Means in 20117", #add title
+       y = "First Distance Means (micrometers)", #add y axis label
+       x = "Experimental Group")+ #add x axis label
+  guides(color = FALSE)+ #remove legend
+  geom_signif(comparisons = list(c("Ctl", "Indy OE")), #get significance
+              map_signif_level=TRUE, #add significance to plot
+              color = "black")  #change bracket color to black
+```
+
+# 21412 First Distance Means Plot
+```{r 21412firstdistance}
+means_combinedindy2 %>% #create ggplot from this data
+  ggplot(aes(x = metadatagroup, #set x axis as metadatagroup
+             y = microns_first, #set y axis as microns
+             color = metadatagroup))+ #set color as metadatagroup
+  geom_boxplot()+ #geom is boxplot
+  geom_point(position = position_jitterdodge())+ #add jittered points
+  labs(title = "First Distance Means in 21412", #add title
+       y = "First Distance Means (micrometers)", #add y axis label
+       x = "Experimental Group")+ #add x axis label
+  guides(color = FALSE)+ #remove legend
+  geom_signif(comparisons = list(c("Ctl", "Indy OE")), #get significance
+              map_signif_level=TRUE, #add significance to plot
+              color = "black")  #change bracket color to black
+```
+
+# Sum of First and Second Distance Means Plot (Animated)
+```{r combinedsumplot}
+rfsumindy <- rfindy %>% #create new dataframe
+  mutate(sum = sum(c(microns_first, microns_second)))
+
+sum <- rfsumindy %>% #create ggplot from this data
+  ggplot(aes(x = metadatagroup, #set x axis as metadatagroup
+             y = microns_first, #set y axis as microns
+             color = metadatagroup))+ #set color as metadatagroup
+  geom_boxplot()+ #geom is boxplot
+  geom_point(position = position_jitterdodge())+
+  labs(x = "Experimental Group", #add x axis label
+       y = "Sum of Means (micrometers)")+ #add y axis label
+  guides(color = FALSE)+ #remove legend
+transition_states(line, #the thing you are animating by
+                    transition_length = 2, #relative length of transition (length between transitions)
+                    state_length = 1)+ #The length between end and beginning of gif
+  ease_aes("sine-in-out")+
+  ggtitle("Sum of First and Second Means of Line {closest_state}")
+
+  animate(sum, height=400, width=600, renderer=gifski_renderer())
+  anim_save("combinedsum.gif", sum)
+```
+
+# 20117 Sum of First and Second Distance Means Plot
+```{r 20117sumplot}
+rfsumindy1 <- rfindy1 %>% #create new dataframe
+  mutate(sum = sum(c(microns_first, microns_second))) #add new colmn to rowwise dataframe - calclate sum of first and second distances per gut
+rfsumindy1
+
+rfsumindy1 %>% #create ggplot from this data
+  ggplot(aes(x = metadatagroup, #set x axis as metadatagroup
+             y = sum, #set y axis as sum
+             color = metadatagroup))+ #set color as metadatagroup
+  geom_boxplot()+ #geom is boxplot
+  geom_point(position = position_jitterdodge())+ #add jittered points
+  labs(title = "Sum of First and Second Means 20117", #add title
+       x = "Experimental Group", #add x axis label
+       y = "Sum of Means (micrometers)")+ #add y axis label
+  guides(color = FALSE)+ #remove legend
+  geom_signif(comparisons = list(c("Ctl", "Indy OE")), #get significance
+              map_signif_level=TRUE, #add significance to plot
+              color = "black")  #change bracket color to black
+```
+
+# 21412 Sum of First and Second Distance Means Plot
+```{r 21412sumplot}
+rfsumindy2 <- rfindy2 %>% #create new df
+  mutate(sum = sum(c(microns_first, microns_second))) #add column for sum of first and second distances
+rfsumindy2 #view new df
+
+rfsumindy2 %>% #create ggplot from this data
+  ggplot(aes(x = metadatagroup, #set x axis to metadatagroup
+             y = sum, #set y axis to sum
+             color = metadatagroup))+ #set color to metadatagroup
+  geom_boxplot()+ #geom is boxplot
+  geom_point(position = position_jitterdodge())+ #add jittered points
+  labs(title = "Sum of First and Second Means 21412", #add title
+       x = "Experimental Group", #add x axis label
+       y = "Sum of Means (micrometers)")+ #add y axis label
+  guides(color = FALSE)+ #remove legend
+  geom_signif(comparisons = list(c("Ctl", "Indy OE")), #get significance
+              map_signif_level=TRUE, #add signifcance to plot
+              color = "black")  #change bracket color to black
+```
+
+# Average of First and Second Distance Means Plot (Animated)
+```{r combinedavgplot}
+rfavgindy <- rfindy %>% #create new dataframe
+  mutate(mean = mean(c(microns_first, microns_second)))
+rfavgindy
+
+average <- rfavgindy %>% #create ggplot from this data
+  ggplot(aes(x = metadatagroup, #set x axis as metadatagroup
+             y = microns_first, #set y axis as microns
+             color = metadatagroup))+ #set color as metadatagroup
+  geom_boxplot()+ #geom is boxplot
+  geom_point(position = position_jitterdodge())+
+  labs(x = "Experimental Group", #add x axis label
+       y = "Average of Means (micrometers)")+ #add y axis label
+  guides(color = FALSE)+ #remove legend
+transition_states(line, #the thing you are animating by
+                    transition_length = 2, #relative length of transition (length between transitions)
+                    state_length = 1)+ #The length between end and beginning of gif
+  ease_aes("sine-in-out")+
+  ggtitle("Average of First and Second Means of Line {closest_state}")
+animate(average, height=400, width=600, renderer=gifski_renderer())
+anim_save("combinedavg.gif", average)
+```
+
+# 20117 Average of First and Second Distance Means Plot
+```{r 20117avgplot}
+rfavgindy1 <- rfindy1 %>% #create new dataframe
+  mutate(avg = mean(c(microns_first, microns_second))) #calculate average of first and second distances
+rfavgindy1 #view dataframe
+
+rfavgindy1 %>% #create ggplot from this data
+  ggplot(aes(x = metadatagroup, #set x axis as metadatagroup
+             y = avg, #set y axis as average
+             color = metadatagroup))+ #set color as metadatagroup
+  geom_boxplot()+ #geom is boxplot
+  geom_point(position = position_jitterdodge())+ #add jittered points
+  labs(title = "Average of First and Second Means 20117", #add title
+       x = "Experimental Group", #add x axis label
+       y = "Average of Means (micrometers)")+ #add y axis label
+  guides(color = FALSE)+ #remove legend
+  geom_signif(comparisons = list(c("Ctl", "Indy OE")), #get significance
+              map_signif_level=TRUE, #add significance to plot
+              color = "black")  #set bracket color to black
+```
+# 21412 Average of First and Second Distance Means Plot
+```{r 21412avgplot}
+rfavgindy2 <- rfindy2 %>% #create new df
+  mutate(avg = mean(c(microns_first, microns_second))) #add new column for average of first and second distance
+rfavgindy2 #view new df
+
+rfavgindy2 %>% #create ggpot from this data
+  ggplot(aes(x = metadatagroup, #set x axis to metadatagroup
+             y = avg, #set y axis to avg
+             color = metadatagroup))+ #set color to metadatagroup
+  geom_boxplot()+ #geom is boxplot
+  geom_point(position = position_jitterdodge())+ #add jittered points
+  labs(title = "Average of First and Second Means 21412", #add title
+       x = "Experimental Group", #add x axis label
+       y = "Average of Means (micrometers)")+ #add y axis label
+  guides(color = FALSE)+ #remove legend
+  geom_signif(comparisons = list(c("Ctl", "Indy OE")), #get significance
+              map_signif_level=TRUE, #dd singificance to plot
+              color = "black")  #change bracket color to black
+```

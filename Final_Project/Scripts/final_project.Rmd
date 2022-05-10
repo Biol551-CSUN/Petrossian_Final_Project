@@ -57,7 +57,7 @@ image_read(here("Final_Project", "Images", "indyoe.png"))  #Read in ISC image
 
 # Increase in Enteroendrocrine Counts
 ```{r eeprog}
-cells <- read_csv(here("Final_Project", "Data", "ee_progenitor_counts.csv")) #read in data
+cells <- read_csv(here("Final_Project", "Data", "EE_Progenitor_Counts", "ee_progenitor_counts.csv")) #read in data
 view(cells) #view data
 
 cells %>% 

@@ -5,7 +5,7 @@ This project uses data from my in-progress thesis. This [data](https://github.co
 
 This project investigates the morphological effects of master regulator genetic targets on the intestinal stem cells of *Drosophila melanogaster*. I focus on the overexpression of the target Indy (Indy OE). My data analysis shows that the overexpression of Indy results in an increae of enteroendrocrine cells relative to progenitor cells, as well as an increase in distances between enterocytes in one Indy OE line. 
 
-The folder of this repository are as follows:  
+The folders of this repository are as follows:  
 [Data](https://github.com/Biol551-CSUN/Petrossian_Final_Project/tree/main/Final_Project/Data)  
 - [20117](https://github.com/Biol551-CSUN/Petrossian_Final_Project/tree/main/Final_Project/Data/20117) contains spreadsheets with distance data for the Indy OE cross 20117 and respective Control. A data dictionary is also included. 
 - [21412](https://github.com/Biol551-CSUN/Petrossian_Final_Project/tree/main/Final_Project/Data/21412) contains spreadsheets with distance data for the Indy OE cross 20117 and respective Control. A data dictionary is also included.  

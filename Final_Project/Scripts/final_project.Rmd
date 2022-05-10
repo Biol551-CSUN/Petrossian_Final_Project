@@ -39,7 +39,7 @@ While the effects of manipulating MRs on ASCs have been well characterized, and 
 
 To explore this, we use the model system *Drosophila melanogaster*, the fruit fly. We specifically study intestinal stem cells (ISCs) in the posterior midgut region of the fly. 
 ```{r}
-image_read(here("Final_Project", "Images", "modelsystem.png"))  #Read in ISC image
+image_read(here("Final_Project", "Images", "modelsystem.png"))  #Read in model system image
 ```
 
 We will focus on two well-known MRs of ISCs in *Drosophila*, Escargot (Esg) and STAT. While previous work in our lab has validated several targets regulated by Esg, STAT, or both, the role of these targets themselves in ISC regulation has not been investigated.
@@ -53,7 +53,7 @@ We used Cell Profiler, a "free, open-source software designed to ... quantitativ
 # Indy Overexpression Phenotypes
 
 ```{r}
-image_read(here("Final_Project", "Images", "indyoe.png"))  #Read in ISC image
+image_read(here("Final_Project", "Images", "indyoe.png"))  #Read in indyoe image
 ```
 
 We visually saw an increase in the number of red enteroendocrine (EE) cells relative to the number of green progenitor cells in Indy OE.  
@@ -82,7 +82,7 @@ cells %>%
 
 # Indy Overexpression Phenotypes
 ```{r}
-image_read(here("Final_Project", "Images", "indyoe.png"))  #Read in ISC image
+image_read(here("Final_Project", "Images", "indyoe.png"))  #Read in indyoe image
 ```
 We also noticed that it appeared as if blue enterocytes (ECs) were more spread out from each other in the Indy OE compared to control. We used CellProfiler to quantify the distances between ECs in control and Indy OE guts. We automatically detected EC cells from microscopy images using CellProfiler, and then extracted measurements of the distances between each EC and its first and second closest neighboring EC.
 
@@ -193,11 +193,11 @@ first <- combinedindy %>% #create ggplot from this data
 transition_states(line, #the thing you are animating by
                     transition_length = 2, #relative length of transition (length between transitions)
                     state_length = 1)+ #The length between end and beginning of gif
-  ease_aes("sine-in-out")+
-  ggtitle("First Distance Means of Line {closest_state}")
+  ease_aes("sine-in-out")+ #add easing of aesthetics as sine in out
+  ggtitle("First Distance Means of Line {closest_state}") #title changes according to line being animated
 
-  animate(first, height=400, width=600, renderer=gifski_renderer())
-  anim_save("combinedmeans.gif", first)
+  animate(first, height=400, width=600, renderer=gifski_renderer()) #render animation with gifski package
+  anim_save("combinedmeans.gif", first) #save animation
 ```
 
 # 20117 First Distance Means Plot
@@ -251,11 +251,11 @@ sum <- rfsumindy %>% #create ggplot from this data
 transition_states(line, #the thing you are animating by
                     transition_length = 2, #relative length of transition (length between transitions)
                     state_length = 1)+ #The length between end and beginning of gif
-  ease_aes("sine-in-out")+
-  ggtitle("Sum of First and Second Means of Line {closest_state}")
+  ease_aes("sine-in-out")+ #add easing of aesthetics as sine in out
+  ggtitle("Sum of First and Second Means of Line {closest_state}") #title changes according to line being animated
 
-  animate(sum, height=400, width=600, renderer=gifski_renderer())
-  anim_save("combinedsum.gif", sum)
+  animate(sum, height=400, width=600, renderer=gifski_renderer()) #render animation using gifski package
+  anim_save("combinedsum.gif", sum) #save animation
 ```
 
 # 20117 Sum of First and Second Distance Means Plot
@@ -318,10 +318,10 @@ average <- rfavgindy %>% #create ggplot from this data
 transition_states(line, #the thing you are animating by
                     transition_length = 2, #relative length of transition (length between transitions)
                     state_length = 1)+ #The length between end and beginning of gif
-  ease_aes("sine-in-out")+
-  ggtitle("Average of First and Second Means of Line {closest_state}")
-animate(average, height=400, width=600, renderer=gifski_renderer())
-anim_save("combinedavg.gif", average)
+  ease_aes("sine-in-out")+ #add easing of aesthetics as sine in out
+  ggtitle("Average of First and Second Means of Line {closest_state}") #title changes according to line being animated
+animate(average, height=400, width=600, renderer=gifski_renderer()) #render animation using gifski package
+anim_save("combinedavg.gif", average) #save animation
 ```
 
 # 20117 Average of First and Second Distance Means Plot

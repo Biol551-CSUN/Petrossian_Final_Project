@@ -50,10 +50,15 @@ For this project, we will focus on the downstream genetic target Indy. We geneti
 
 We used Cell Profiler, a "free, open-source software designed to ... quantitatively measure phenotypes from thousands of images automatically" to generate numerical data of the phenotypes observed. This data was used for the following plots. 
 
+# Indy Overexpression Phenotypes
+
 ```{r}
 image_read(here("Final_Project", "Images", "indyoe.png"))  #Read in ISC image
 ```
 
+We visually saw an increase in the number of red enteroendocrine (EE) cells relative to the number of green progenitor cells in Indy OE.  
+
+I will read in the data of EE and progenitor cell counts and plot it.
 
 # Increase in Enteroendrocrine Counts
 ```{r eeprog}
@@ -69,15 +74,19 @@ cells %>%
   labs(title = "EE Counts Relative to Progenitor Counts in Indy OE (20117)", #add title
        y = "# of EE Cells / # of Progenitor Cells", #add y axis label
        x = "Experimental Group")+ #add x axis label
-  guides(color = FALSE)+ #remove legend
+  guides(color = FALSE)+#remove legend
    geom_signif(comparisons = list(c("Ctl", "Indy OE")), #determine significance
               map_signif_level=TRUE, #show significance on plot
               color = "black")  #change bracket color to black
 ```
 
+# Indy Overexpression Phenotypes
 ```{r}
 image_read(here("Final_Project", "Images", "indyoe.png"))  #Read in ISC image
 ```
+We also noticed that it appeared as if blue enterocytes (ECs) were more spread out from each other in the Indy OE compared to control. We used CellProfiler to quantify the distances between ECs in control and Indy OE guts. We automatically detected EC cells from microscopy images using CellProfiler, and then extracted measurements of the distances between each EC and its first and second closest neighboring EC.
+
+First I will read in the data and wrangle it into an appropriate structure for plotting.  
 
 # 20117 Data Wrangling
 ```{r}
@@ -155,6 +164,8 @@ rfindy2 <- means_combinedindy2 %>% #create new df
 rfindy2 #view df
 ```
 
+I will them combine the two dataframes to use in one type of plot.  
+
 # Data Wrangling of Both 20117 & 21412
 ```{r}
 combinedindy <- bind_rows(means_combinedindy1, means_combinedindy2) #stack dfs on top of each other
@@ -164,6 +175,9 @@ rfindy <- combinedindy %>%
   rowwise() #use rowwise to allow for computing dataframe on row by row basis
 rfindy #view df
 ```
+
+I will now begin plotting.   
+
 
 # First Distance Means Plot (Animated)
 ```{r firstdistancecombined}
